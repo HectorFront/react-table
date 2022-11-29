@@ -7,6 +7,9 @@
 	"description": "Data table for React",
 	"main": "index.js",
 	"license": "MIT",
+	"scripts": {
+		"start": "webpack serve --progress --config webpack.dev.config.js"
+	},
 	"engines": {
 		"node": ">=16.0"
 	},
@@ -17,9 +20,7 @@
 	"bugs": {
 		"url": "https://github.com/theonlyducks/react-table/issues"
 	},
-	"files": [
-
-	],
+	"files": [],
 	"keywords": [
 		"theonlyducks",
 		"table",
@@ -30,7 +31,36 @@
 		"react-boostrap-table"
 	],
 	"peerDependencies": {
+		"bootstrap": "^5.0.0",
 		"react": "^16.0.0 || ^17.0.0 || ^18.0.0",
 		"react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.19.3",
+		"@babel/core": "^7.20.5",
+		"@babel/preset-env": "^7.20.2",
+		"@babel/preset-react": "^7.18.6",
+		"@babel/preset-typescript": "^7.18.6",
+		"@testing-library/jest-dom": "^5.16.5",
+		"@testing-library/react": "^13.4.0",
+		"@types/react": "^18.0.25",
+		"@types/react-dom": "^18.0.9",
+		"babel-jest": "^29.3.1",
+		"babel-loader": "^9.1.0",
+		"bootstrap": "^5.2.3",
+		"clean-webpack-plugin": "^4.0.0",
+		"css-loader": "^6.7.2",
+		"html-webpack-plugin": "^5.5.0",
+		"jest": "^29.3.1",
+		"jest-environment-jsdom": "^29.3.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"style-loader": "^3.3.1",
+		"terser-webpack-plugin": "^5.3.6",
+		"ts-loader": "^9.4.1",
+		"typescript": "^4.9.3",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.0",
+		"webpack-dev-server": "^4.11.1"
 	}
 }
