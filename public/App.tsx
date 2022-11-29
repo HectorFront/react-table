@@ -72,8 +72,8 @@ export const App = (): JSX.Element => {
 			/* Optional */
 			maxRows={7}
 			loading={loading}
-			themeTable='dark'
-			themeLoader='primary'
+			themeTable='default'
+			themeLoader='default'
 			emptyDataMessage={() => <span>My message.</span>}
 			showResultsMessage={({ start, end, total }: Results) => (
 				<span style={{ color: 'white' }}>My results</span>

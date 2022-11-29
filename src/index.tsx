@@ -7,6 +7,16 @@ type Results = {
 	total: number
 }
 
+type DisablePagination = {
+	[key: string]: {
+		style: {
+			[key:string]: number | string
+		},
+		disabled: boolean,
+		className: string
+	}
+}
+
 interface Props {
 	data: object[],
 	maxRows?: number,
@@ -51,7 +61,32 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 
 	const renderPagination: number[] = Array.from(Array(countPagination).keys()).slice(initialPagination, endPagination);
 
-	const isDecimal = (n: number) => {
+	const startTable: number = (maxRows * currentPagination + 1) - maxRows;
+	const endTable: number = (currentPagination * maxRows) - (maxRows - rows.length);
+
+	const disableStartPage: boolean = currentPagination === 1;
+	const disableEndPage: boolean = currentPagination === (renderPagination[renderPagination.length - 1] + 1);
+
+	const disabledPagination: DisablePagination = {
+		start: {
+			disabled: disableStartPage,
+			className: disableStartPage ? ' opacity-50' : '',
+			style: disableStartPage ? { cursor: 'not-allowed' } : {}
+		},
+		end: {
+			disabled: disableEndPage,
+			className: disableEndPage ? ' opacity-50' : '',
+			style: disableEndPage ? { cursor: 'not-allowed' } : {}
+		}
+	};
+
+	const stylePagination: { [key: string]: string | number } = {
+		border: 0,
+		color: 'black',
+		boxShadow: 'none'
+	};
+
+	const isDecimal = (n: number): boolean => {
 		return n % 1 === 0;
 	};
 
@@ -77,7 +112,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		);
 	};
 
-	const renderCell = useCallback((index: number, value: any) => {
+	const renderCell = useCallback((index: number, value: any): JSX.Element => {
 		if(index < 1) {
 			return <th key={index} scope="row">{value}</th>
 		} else {
@@ -153,8 +188,6 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		}
 	},[currentPagination, data]);
 
-	const startTable: number = (maxRows * currentPagination + 1) - maxRows;
-	const endTable: number = (currentPagination * maxRows) - (maxRows - rows.length);
 	return (
 		<Fragment>
 			<table className={`table table-${themeTable} mb-0`}>
@@ -212,29 +245,74 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 				>
 					{countPagination > 1 && renderResultsMessage()}
 					<ul className="pagination mb-0">
-						<li className="page-item" onClick={fullPrevious}>
-							<a className="page-link" href="#">{'<<'}</a>
+						<li
+							className={`page-item${disabledPagination.start.className}`}
+							onClick={!disabledPagination.start.disabled ? fullPrevious : null}
+						>
+							<a
+								href="#"
+								className="page-link"
+								style={{...stylePagination, ...(disabledPagination.start.style)}}
+							>
+								{'<<'}
+							</a>
 						</li>
-						<li className="page-item" onClick={previous}>
-							<a className="page-link" href="#">{'<'}</a>
+						<li
+							className={`page-item${disabledPagination.start.className}`}
+							onClick={!disabledPagination.start.disabled ? previous : null}
+						>
+							<a
+								href="#"
+								className="page-link"
+								style={{...stylePagination, ...(disabledPagination.start.style)}}
+							>
+								{'<'}
+							</a>
 						</li>
 						{renderPagination.map(pagination => {
+							const active = currentPagination === pagination + 1;
 							return (
 								<li
 									key={pagination}
 									aria-current="page"
+									className={active ? 'page-item active' : 'page-item'}
 									onClick={() => setPagination(pagination + 1)}
-									className={currentPagination === pagination + 1 ? 'page-item active' : 'page-item'}
 								>
-									<a className="page-link" href="#">{pagination + 1}</a>
+									<a
+										href="#"
+										className="page-link"
+										style={{
+											...stylePagination,
+											...(active ? { color: 'white', backgroundColor: '#505050'} : {})}}
+									>
+										{pagination + 1}
+									</a>
 								</li>
 							)
 						})}
-						<li className="page-item" onClick={next}>
-							<a className="page-link" href="#">{'>'}</a>
+						<li
+							onClick={!disabledPagination.end.disabled ? next : null}
+							className={`page-item${disabledPagination.end.className}`}
+						>
+							<a
+								href="#"
+								className="page-link"
+								style={{...stylePagination, ...(disabledPagination.end.style)}}
+							>
+								{'>'}
+							</a>
 						</li>
-						<li className="page-item" onClick={fullNext}>
-							<a className="page-link" href="#">{'>>'}</a>
+						<li
+							className={`page-item${disabledPagination.end.className}`}
+							onClick={!disabledPagination.end.disabled ? fullNext : null}
+						>
+							<a
+								href="#"
+								className="page-link"
+								style={{...stylePagination, ...(disabledPagination.end.style)}}
+							>
+								{'>>'}
+							</a>
 						</li>
 					</ul>
 				</nav>
