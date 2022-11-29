@@ -2,15 +2,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Fragment, memo, useCallback, useEffect, useState} from 'react';
 
 type Results = {
-	start: number,
 	end: number,
+	start: number,
 	total: number
 }
 
 type DisablePagination = {
 	[key: string]: {
 		style: {
-			[key:string]: number | string
+			[key: string]: number | string
 		},
 		disabled: boolean,
 		className: string
@@ -33,7 +33,10 @@ interface Column {
 	value: string,
 	header: string,
 	hide?: boolean,
-	style?: object,
+	styleRow?: object,
+	styleColumn?: object,
+	classNameRow?: string,
+	classNameColumn?: string,
 	formatter?: (cell: any, item: object, index: number) => JSX.Element
 }
 
@@ -114,11 +117,13 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		);
 	};
 
-	const renderCell = useCallback((index: number, value: any): JSX.Element => {
+	const renderCell = useCallback((index: number, value: any, style: object | undefined, className: string | undefined): JSX.Element => {
+		const styleRow = !style ? {} : style;
+		const classNameRow = !className ? '' : className;
 		if(index < 1) {
-			return <th key={index} scope="row">{value}</th>
+			return <th style={styleRow} className={classNameRow} key={index} scope="row">{value}</th>
 		} else {
-			return <td key={index}>{value}</td>
+			return <td style={styleRow} className={classNameRow} key={index}>{value}</td>
 		}
 	},[]);
 
@@ -197,7 +202,16 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 				<tr>
 					{columns.map((column: Column, index) => {
 						if(!column.hide) {
-							return <th key={index} style={!column.style ? {} : column.style} scope="col">{column.header}</th>;
+							return (
+								<th
+									key={index}
+									scope="col"
+									style={!column.styleColumn ? {} : column.styleColumn}
+									className={!column.classNameColumn ? '' : column.classNameColumn}
+								>
+									{column.header}
+								</th>
+							);
 						} else {
 							return null;
 						}
@@ -206,23 +220,23 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 				</thead>
 				{(data.length && !loading) ?
 					<tbody>
-					{rows.map((item: any, index: number) =>
-						<tr key={index}>
-							{columns.map((column: Column, index) => {
-								if(!column.hide) {
-									const cell = item[column.value];
-									if (column.formatter) {
-										const formatterCell = column.formatter(cell, item, index);
-										return renderCell(index, formatterCell);
+						{rows.map((item: any, index: number) =>
+							<tr key={index}>
+								{columns.map((column: Column, index) => {
+									if(!column.hide) {
+										const cell = item[column.value];
+										if (column.formatter) {
+											const formatterCell = column.formatter(cell, item, index);
+											return renderCell(index, formatterCell, column.styleRow, column.classNameRow);
+										} else {
+											return renderCell(index, cell, column.styleRow, column.classNameRow);
+										}
 									} else {
-										return renderCell(index, cell);
+										return null;
 									}
-								} else {
-									return null;
-								}
-							})}
-						</tr>
-					)}
+								})}
+							</tr>
+						)}
 					</tbody>
 					:
 					<tbody/>

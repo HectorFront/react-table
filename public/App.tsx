@@ -45,7 +45,10 @@ export const App = (): JSX.Element => {
 		header: 'Actions',
 		value: '',
 		formatter: actions,
-		style: { width: 200 },
+		classNameRow: 'class-row',
+		classNameColumn: 'class-column',
+		styleColumn: { width: 150 },
+		styleRow: { backgroundColor: '#d5d5d5' }
 	}];
 
 	useEffect(() => {
