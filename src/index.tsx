@@ -59,13 +59,19 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 	const [countPagination, setCountPagination] = useState<number>(0);
 	const [currentPagination, setCurrentPagination] = useState<number>(1);
 
+	const isDecimal = (n: number): boolean => {
+		return n % 1 === 0;
+	};
+
+	const calcTotalPagination = data.length / maxRows;
+	const totalPagination = isDecimal(calcTotalPagination) ? calcTotalPagination : parseInt(String(calcTotalPagination)) + 1;
 	const renderPagination: number[] = Array.from(Array(countPagination).keys()).slice(initialPagination, endPagination);
 
 	const startTable: number = (maxRows * currentPagination + 1) - maxRows;
 	const endTable: number = (currentPagination * maxRows) - (maxRows - rows.length);
 
 	const disableStartPage: boolean = currentPagination === 1;
-	const disableEndPage: boolean = currentPagination === (renderPagination[renderPagination.length - 1] + 1);
+	const disableEndPage: boolean = currentPagination === totalPagination;
 
 	const disabledPagination: DisablePagination = {
 		start: {
@@ -84,10 +90,6 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		border: 0,
 		color: 'black',
 		boxShadow: 'none'
-	};
-
-	const isDecimal = (n: number): boolean => {
-		return n % 1 === 0;
 	};
 
 	const renderEmptyMessage = (): JSX.Element | string => {
