@@ -1,0 +1,36 @@
+{
+	"name": "@theonlyducks/react-table",
+	"version": "1.0.0",
+	"title": "React Table",
+	"private": false,
+	"author": "Hector Silva <hectddos103@gmail.com>",
+	"description": "Data table for React",
+	"main": "index.js",
+	"license": "MIT",
+	"engines": {
+		"node": ">=16.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/theonlyducks/react-table.git"
+	},
+	"bugs": {
+		"url": "https://github.com/theonlyducks/react-table/issues"
+	},
+	"files": [
+
+	],
+	"keywords": [
+		"theonlyducks",
+		"table",
+		"reacttable",
+		"react-table",
+		"boostrap",
+		"boostrap-table",
+		"react-boostrap-table"
+	],
+	"peerDependencies": {
+		"react": "^16.0.0 || ^17.0.0 || ^18.0.0",
+		"react-dom": "^16.0.0 || ^17.0.0 || ^18.0.0"
+	}
+}
