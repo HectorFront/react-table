@@ -1,4 +1,6 @@
+import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import React, {Fragment, memo, useCallback, useEffect, useState} from 'react';
 
 type Results = {
@@ -25,8 +27,15 @@ interface Props {
 	themeTable?: string,
 	themeLoader?: string,
 	maxPagination?: number,
+	textNext?: string,
+	textFullNext?: string,
+	textPrevious?: string,
+	colorActivePage?: string,
+	textFullPrevious?: string,
 	emptyDataMessage?: () => JSX.Element | string,
-	showResultsMessage?: (object: Results) => JSX.Element | string
+	onClickRow?: (e: object, object: object, index: number) => any,
+	showResultsMessage?: (object: Results) => JSX.Element | string,
+	onDoubleClickRow?: (e: object, object: object, index: number) => any
 }
 
 interface Column {
@@ -34,20 +43,30 @@ interface Column {
 	header: string,
 	hide?: boolean,
 	styleRow?: object,
-	styleColumn?: object,
+	attrsRow?: object,
+	attrsHeader?: object,
+	styleHeader?: object,
+	headerAlign?: string,
 	classNameRow?: string,
-	classNameColumn?: string,
+	classNameHeader?: string,
 	formatter?: (cell: any, item: object, index: number) => JSX.Element
 }
 
-export const DuckTable = memo((props: Props): JSX.Element => {
+const DuckTable = memo((props: Props): JSX.Element => {
 
 	const {
 		data = [],
+		onClickRow,
 		columns = [],
 		maxRows = 10,
 		loading = false,
+		textNext = '>',
+		textFullNext = '>>',
+		textPrevious = '<',
+		textFullPrevious = '<<',
+		colorActivePage = '#505050',
 		emptyDataMessage,
+		onDoubleClickRow,
 		showResultsMessage,
 		maxPagination = 10,
 		themeLoader = 'dark',
@@ -117,13 +136,15 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		);
 	};
 
-	const renderCell = useCallback((index: number, value: any, style: object | undefined, className: string | undefined): JSX.Element => {
+	const renderCell = useCallback((
+		index: number, value: any, style: object | undefined, attrs: object | undefined, className: string | undefined
+	): JSX.Element => {
 		const styleRow = !style ? {} : style;
 		const classNameRow = !className ? '' : className;
 		if(index < 1) {
-			return <th style={styleRow} className={classNameRow} key={index} scope="row">{value}</th>
+			return <th {...attrs} style={styleRow} className={classNameRow} key={index} scope="row">{value}</th>
 		} else {
-			return <td style={styleRow} className={classNameRow} key={index}>{value}</td>
+			return <td {...attrs} style={styleRow} className={classNameRow} key={index}>{value}</td>
 		}
 	},[]);
 
@@ -131,25 +152,25 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		setCurrentPagination(1);
 		setInitialPagination(0);
 		setEndPagination(maxPagination);
-	}
+	};
 
 	const fullNext = () => {
 		setCurrentPagination(countPagination);
 		setInitialPagination(countPagination - (maxPagination - 1));
 		setEndPagination(countPagination);
-	}
+	};
 
 	const previous = () => {
 		if(currentPagination > 1) {
 			setPagination(currentPagination - 1);
 		}
-	}
+	};
 
 	const next = () => {
 		if(currentPagination !== countPagination) {
 			setPagination(currentPagination + 1);
 		}
-	}
+	};
 
 	const setPagination = (pagination: number): void => {
 		setCurrentPagination(pagination);
@@ -204,12 +225,19 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 						if(!column.hide) {
 							return (
 								<th
+									{...column.attrsHeader}
 									key={index}
 									scope="col"
-									style={!column.styleColumn ? {} : column.styleColumn}
-									className={!column.classNameColumn ? '' : column.classNameColumn}
+									className={column.classNameHeader}
+									style={{
+										...(column.headerAlign
+											? { textAlign: column.headerAlign, ...column.styleHeader } : column.styleHeader
+										)
+									}}
 								>
-									{column.header}
+									<div className='table-content-header'>
+										{column.header}&nbsp;<i className="bi bi-triangle-fill header-sort down"/>
+									</div>
 								</th>
 							);
 						} else {
@@ -221,15 +249,20 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 				{(data.length && !loading) ?
 					<tbody>
 						{rows.map((item: any, index: number) =>
-							<tr key={index}>
+							<tr
+								key={index}
+								className='row-duck-table'
+								onClick={e => onClickRow(e, item, index)}
+								onDoubleClick={e => onDoubleClickRow(e, item, index)}
+							>
 								{columns.map((column: Column, index) => {
 									if(!column.hide) {
 										const cell = item[column.value];
 										if (column.formatter) {
 											const formatterCell = column.formatter(cell, item, index);
-											return renderCell(index, formatterCell, column.styleRow, column.classNameRow);
+											return renderCell(index, formatterCell, column.styleRow, column.attrsRow, column.classNameRow);
 										} else {
-											return renderCell(index, cell, column.styleRow, column.classNameRow);
+											return renderCell(index, cell, column.styleRow, column.attrsRow, column.classNameRow);
 										}
 									} else {
 										return null;
@@ -257,7 +290,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 			{countPagination > 1 &&
 				<nav
 					aria-label="pagination"
-					className={`d-flex align-items-center justify-content-between bg-${themeTable} p-3`}
+					className={`d-flex align-items-center justify-content-between p-3`}
 				>
 					{countPagination > 1 && renderResultsMessage()}
 					<ul className="pagination mb-0">
@@ -270,7 +303,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 								className="page-link"
 								style={{...stylePagination, ...(disabledPagination.start.style)}}
 							>
-								{'<<'}
+								{textFullPrevious}
 							</a>
 						</li>
 						<li
@@ -282,7 +315,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 								className="page-link"
 								style={{...stylePagination, ...(disabledPagination.start.style)}}
 							>
-								{'<'}
+								{textPrevious}
 							</a>
 						</li>
 						{renderPagination.map(pagination => {
@@ -299,7 +332,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 										className="page-link"
 										style={{
 											...stylePagination,
-											...(active ? { color: 'white', backgroundColor: '#505050'} : {})}}
+											...(active ? { color: 'white', backgroundColor: colorActivePage } : {})}}
 									>
 										{pagination + 1}
 									</a>
@@ -315,7 +348,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 								className="page-link"
 								style={{...stylePagination, ...(disabledPagination.end.style)}}
 							>
-								{'>'}
+								{textNext}
 							</a>
 						</li>
 						<li
@@ -327,7 +360,7 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 								className="page-link"
 								style={{...stylePagination, ...(disabledPagination.end.style)}}
 							>
-								{'>>'}
+								{textFullNext}
 							</a>
 						</li>
 					</ul>
@@ -336,3 +369,5 @@ export const DuckTable = memo((props: Props): JSX.Element => {
 		</Fragment>
 	);
 });
+
+export default DuckTable;

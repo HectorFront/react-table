@@ -1,0 +1,20 @@
+.table-content-header {
+	position: relative;
+}
+
+.header-sort, .header-sort.up {
+	top: 8px;
+	color: gray;
+	font-size: 7px;
+	position: absolute;
+}
+
+.header-sort.down {
+	transform: rotate(180deg);
+}
+
+.row-duck-table:hover {
+	opacity: .7;
+	border-color: #545454;
+}
+

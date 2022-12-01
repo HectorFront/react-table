@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import {DuckTable} from '../src';
+import DuckTable from '../src';
 
 type Item = {
 	id: number,
@@ -21,7 +21,7 @@ export const App = (): JSX.Element => {
 	const [data, setData] = useState<object[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 
-	const actions = () => {
+	const actions = (_cell: any, row: object, index: number) => {
 		return <span>Custom</span>;
 	};
 
@@ -45,10 +45,13 @@ export const App = (): JSX.Element => {
 		header: 'Actions',
 		value: '',
 		formatter: actions,
+		headerAlign: 'center',
 		classNameRow: 'class-row',
-		classNameColumn: 'class-column',
-		styleColumn: { width: 150 },
-		styleRow: { backgroundColor: '#d5d5d5' }
+		styleHeader: { width: 150 },
+		classNameHeader: 'class-column',
+		attrsRow: { 'data-row': 'row' },
+		styleRow: { backgroundColor: '#d5d5d5' },
+		attrsHeader: { 'data-header': 'header' }
 	}];
 
 	useEffect(() => {
@@ -73,14 +76,29 @@ export const App = (): JSX.Element => {
 			data={data}
 			columns={columns}
 			/* Optional */
-			maxRows={7}
-			loading={loading}
-			themeTable='default'
-			themeLoader='default'
-			emptyDataMessage={() => <span>My message.</span>}
-			showResultsMessage={({ start, end, total }: Results) => (
-				<span style={{ color: 'white' }}>My results</span>
-			)}
+			/* -------- */
+				// limits
+				maxRows={15}
+				maxPagination={5}
+				// themes
+				loading={loading}
+				themeTable='light'
+				themeLoader='default'
+				colorActivePage={'red'}
+				// Pagination
+				textNext={'Next'}
+				textPrevious={'Previous'}
+				textFullNext={'Full next'}
+				textFullPrevious={'Full previous'}
+				// Messages
+				emptyDataMessage={() => <span>My message.</span>} // jsx or text
+				showResultsMessage={({ start, end, total }: Results) => (  // jsx or text
+					<span style={{ color: 'gray' }}>My results</span>
+				)}
+				// Events
+				onClickRow={(e: object, row: object, index: number) => console.log(e, row, index)}
+				onDoubleClickRow={(e: object, row: object, index: number) => console.log(e, row, index)}
+			/* -------- */
 		/>
 	);
 }
