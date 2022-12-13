@@ -55,20 +55,29 @@ export const App = (): JSX.Element => {
 	}];
 
 	useEffect(() => {
-		let item: Item = {
-			id: 0,
-			value: 0,
-			store: 'Apple',
-			date: '12/11/2002',
-			description: 'Iphone'
-		};
-		let arr: Item[] = []
-		const rows: number = 10000;
-		for(let i = 1; i <= rows; i++) {
-			arr.push({ ...item, id: i, value: i });
-			if(i === rows) setLoading(false);
+		let rows = 10000;
+		let arr: Item[] = [];
+		const add = () => {
+			let item: Item = {
+				id: 0,
+				value: 0,
+				store: 'Apple',
+				date: '12/11/2002',
+				description: 'Iphone'
+			};
+			for(let i = 1; i <= rows; i++) {
+				arr.push({ ...item, id: i, value: i });
+				if(i === rows) setLoading(false);
+			}
+			setData(arr);
 		}
-		setData(arr);
+		add();
+		// setTimeout(() => {
+		// 	rows = 4000;
+		// 	arr = [];
+		// 	add();
+		// }, 5000);
+		// change data in real time
 	},[]);
 
 	return (
@@ -77,6 +86,8 @@ export const App = (): JSX.Element => {
 			columns={columns}
 			/* Optional */
 			/* -------- */
+			    // sort
+			    sortData
 				// limits
 				maxRows={15}
 				maxPagination={5}

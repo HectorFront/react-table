@@ -2,6 +2,11 @@
 	position: relative;
 }
 
+.table-content-header.sort:hover {
+	opacity: .7;
+	cursor: pointer;
+}
+
 .header-sort, .header-sort.up {
 	top: 8px;
 	color: gray;

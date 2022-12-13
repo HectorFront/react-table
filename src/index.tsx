@@ -24,6 +24,7 @@ interface Props {
 	maxRows?: number,
 	loading?: boolean,
 	columns: object[],
+	sortData?: boolean,
 	themeTable?: string,
 	themeLoader?: string,
 	maxPagination?: number,
@@ -55,11 +56,11 @@ interface Column {
 const DuckTable = memo((props: Props): JSX.Element => {
 
 	const {
-		data = [],
 		onClickRow,
 		columns = [],
 		maxRows = 10,
 		loading = false,
+		sortData = false,
 		textNext = '>',
 		textFullNext = '>>',
 		textPrevious = '<',
@@ -73,7 +74,9 @@ const DuckTable = memo((props: Props): JSX.Element => {
 		themeTable = 'default'
 	} = props;
 
+	const [sort, setSort] = useState<boolean>(false);
 	const [rows, setRows] = useState<object[] | []>([]);
+	const [data, setData] = useState<object[] | []>([]);
 
 	const [initialPagination, setInitialPagination] = useState<number>(0);
 	const [endPagination, setEndPagination] = useState<number>(maxPagination);
@@ -94,6 +97,10 @@ const DuckTable = memo((props: Props): JSX.Element => {
 
 	const disableStartPage: boolean = currentPagination === 1;
 	const disableEndPage: boolean = currentPagination === totalPagination;
+
+
+	const minSlicePage = (maxRows * currentPagination) - maxRows;
+	const maxSlicePage = minSlicePage + maxRows;
 
 	const disabledPagination: DisablePagination = {
 		start: {
@@ -185,6 +192,15 @@ const DuckTable = memo((props: Props): JSX.Element => {
 		}
 	};
 
+	const headerSort = () => {
+		setSort(currentSort => {
+			const isSort = !currentSort;
+			const listSort = data.slice().sort().reverse();
+			setData(listSort);
+			return isSort;
+		});
+	};
+
 	useEffect(() => {
 		if(data.length) {
 			const length: number = data.length;
@@ -195,26 +211,28 @@ const DuckTable = memo((props: Props): JSX.Element => {
 				const count: number = parseInt(String(pagination)) + 1;
 				setCountPagination(count);
 			}
-			if(pagination < countPagination) {
-				previous();
+			if(currentPagination > countPagination) {
+				fullPrevious();
 			}
 		}
-	},[data]);
+	},[data, countPagination]);
 
 	useEffect(() => {
 		if(data.length) {
 			let dataRows: object[] | undefined;
 			let arr: object[] = data.slice();
 			if(currentPagination > 1) {
-				const min = (maxRows * currentPagination) - maxRows;
-				const max = min + maxRows;
-				dataRows = arr.slice(min, max);
+				dataRows = arr.slice(minSlicePage, maxSlicePage);
 			} else {
 				dataRows = arr.slice(0, maxRows);
 			}
 			setRows(dataRows);
 		}
 	},[currentPagination, data]);
+
+	useEffect(() => {
+		setData(props.data);
+	},[props.data]);
 
 	return (
 		<Fragment>
@@ -235,8 +253,14 @@ const DuckTable = memo((props: Props): JSX.Element => {
 										)
 									}}
 								>
-									<div className='table-content-header'>
-										{column.header}&nbsp;<i className="bi bi-triangle-fill header-sort down"/>
+									<div
+										onClick={sortData ? headerSort : null}
+										className={`table-content-header${sortData ? ' sort' : ''}`}
+									>
+										{column.header}
+										{sortData &&
+											<>&nbsp;<i className={`bi bi-triangle-fill header-sort ${sort ? 'up': 'down'}`}/></>
+										}
 									</div>
 								</th>
 							);
